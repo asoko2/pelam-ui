@@ -2,6 +2,8 @@
     <v-col cols="9" class="mx-auto">
         <v-row class="d-flex justify-start pa-3">
             <v-btn :to="'/admin/permohonan-surat/skck'" color="primary">KEMBALI</v-btn>
+            <div v-html="skck[0].keterangan"></div>
+            <div v-for="ket in keterangan" :key="ket.id">{{ ket }}</div>
         </v-row>
         <v-row>
             <v-col cols="12">
@@ -10,19 +12,26 @@
                     <v-divider></v-divider>
                     <v-card-text>
                         <v-col cols="12">
-                            <div v-if="$fetchState.pending">
+                            <!-- <div v-if="$fetchState.pending">
                                 <v-skeleton-loader type="table" loading></v-skeleton-loader>
-                            </div>
-                            <div v-else>
+                            </div> -->
+                            <!-- <div v-else> -->
+                            <div>
                                 <v-simple-table>
                                     <template v-slot:default>
                                         <tbody>
                                             <tr v-for="(item, index) in title" :key="item.field">
                                                 <td class="text-h6">{{ item.name }} </td>
                                                 <td class="text-h6">:</td>
-                                                <td v-if="index == title.length - 1" class="text-h6"><a
-                                                        :href="skcks['kk']" target="_blank">Lihat KK</a></td>
-                                                <td v-else class="text-h6">{{ skcks[item.field] }}</td>
+                                                <td v-if="index == title.length - 1" class="text-h6"><a :href="kk_link"
+                                                        target="_blank">Lihat KK</a></td>
+                                                <td v-else-if="item.field === 'keterangan'">
+                                                    <ol>
+                                                        <li v-for="(ket, index) in keterangan" :key="index"
+                                                            class="text-h6">{{ ket.keterangan }}</li>
+                                                    </ol>
+                                                </td>
+                                                <td v-else class="text-h6">{{ skck[0][item.field] }}</td>
                                             </tr>
                                         </tbody>
                                     </template>
@@ -41,8 +50,9 @@ export default {
     layout: 'admin',
     data() {
         return {
-            skcks: {
-            },
+            html: '<ol><li>Keterangan 1</li><li>Keterangan 2</li></ol>',
+            // skcks: {
+            // },
             title: [
                 { field: 'nik', name: 'NIK', },
                 { field: 'nama', name: 'Nama' },
@@ -58,23 +68,12 @@ export default {
             ]
         }
     },
-    async fetch() {
-        await this.$axios.$get(`http://localhost:3333/sktm/${this.$route.params.id}`)
-            .then(res => {
-                this.sktms = {
-                    nik: res.sktm[0].nik,
-                    nama: res.sktm[0].nama,
-                    jenis_kelamin: res.sktm[0].jenis_kelamin,
-                    tanggal_lahir: DateTime.fromISO(res.sktm[0].tanggal_lahir).toFormat('yyyy-LL-dd'),
-                    tempat_lahir: res.sktm[0].tempat_lahir,
-                    agama: res.sktm[0].agama,
-                    kewarganegaraan: res.sktm[0].kewarganegaraan,
-                    alamat: res.sktm[0].alamat,
-                    keterangan: res.sktm[0].keterangan,
-                    keperluan: res.sktm[0].keperluan,
-                    kk: res.kk_link
-                }
-            })
+    async asyncData({ $axios, params }) {
+        const skcks = await $axios.$get(`http://localhost:3333/skck/${params.id}`).then(res => {
+            console.log(res)
+            return res
+        })
+        return skcks
     },
 }
 </script>

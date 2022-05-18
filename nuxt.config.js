@@ -40,6 +40,7 @@ export default {
     "@nuxtjs/auth-next",
     "vue-toastification/nuxt",
     "vue-sweetalert2/nuxt",
+    "vue2-editor/nuxt",
   ],
   toast: {
     timeout: 2000,

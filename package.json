@@ -20,6 +20,7 @@
     "vue-sweetalert2": "^5.0.5",
     "vue-template-compiler": "^2.6.14",
     "vue-toastification": "^1.7.14",
+    "vue2-editor": "^2.10.3",
     "vuetify": "^2.6.1",
     "webpack": "^4.46.0",
     "yup": "^0.32.11"
