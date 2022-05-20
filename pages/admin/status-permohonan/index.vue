@@ -1,8 +1,5 @@
 <template>
     <v-col cols="12">
-        <v-btn color="secondary" to="/admin/permohonan-surat/sktm/tambah">
-            <v-icon>mdi-plus-thick</v-icon>Tambah SKTM
-        </v-btn>
         <v-card>
             <v-toolbar flat>
                 <v-toolbar-title class="text-h5">
@@ -20,49 +17,23 @@
             </v-toolbar>
             <v-divider></v-divider>
             <v-card-text>
-                <v-col cols="12">
-                    <v-data-table :headers="headers" :items="sktms" disable-pagination :options.sync="options"
-                        :server-items-length="totalSKTMs" :loading="loading" class="elevation-1 mb-2"
-                        :hide-default-footer="true">
-                        <template v-slot:[`item.actions`]="{ item }">
-                            <router-link :to="'/admin/permohonan-surat/sktm/' + item.id" class="primary--text"
-                                style="text-decoration: none;">
-                                Selengkapnya</router-link>
-                            |
-                            <!-- <router-link :to="'/admin/permohonan-surat/sktm/' + item.id + '/edit'" class="primary--text"
-                                style="text-decoration: none;">
-                                Edit</router-link>
-                            | -->
-                            <a href="javascript:void(0)" class="primary--text" @click="hapus(item)"
-                                style="text-decoration: none;">Hapus</a>
-                        </template>
-                    </v-data-table>
-                </v-col>
-                <v-col cols="12">
-                    <v-row class="d-flex justify-between align-center">
-                        Tampilkan
-                        <v-col cols="1" sm="1">
-                            <v-select v-model="pageSize" :items="pageSizes" @change="handlePageSizeChange">
-                            </v-select>
-                        </v-col>
-                        <v-col cols="1">baris</v-col>
-                        <v-col cols="8" sm="8" class="d-flex justify-end">
-                            <v-pagination v-model="page" :length="totalPages" total-visible="7"
-                                next-icon="mdi-menu-right" prev-icon="mdi-menu-left" @input="handlePageChange">
-                            </v-pagination>
-                        </v-col>
-                    </v-row>
-                </v-col>
+                <SktmTable />
+
             </v-card-text>
         </v-card>
     </v-col>
 </template>
-
 <script>
 import { DateTime } from 'luxon'
+import SktmTableVue from '~/components/SktmTable.vue'
+import SktmTable from '~/components/SktmTable.vue'
 
 export default {
     layout: 'admin',
+    components: {
+        SktmTableVue,
+        SktmTable
+    },
     data() {
         return {
             totalSKTMs: 0,
@@ -80,7 +51,6 @@ export default {
                 { text: 'Tanggal', value: 'tanggal' },
                 { text: 'NIK', value: 'nik' },
                 { text: 'Nama Lengkap', value: 'nama' },
-                { text: 'Status', value: 'status' },
                 { text: 'Aksi', value: 'actions' },
             ],
             pageSize: 5,
@@ -123,12 +93,10 @@ export default {
             this.sktms = data.data.map((sktm, i) => {
                 let no = (data.meta.current_page - 1) * data.meta.per_page + 1 + i
                 const tgl = DateTime.fromISO(sktm.created_at).toFormat('yyyy-LL-dd')
-                const status = (sktm.status == 1) ? 'Disetujui' : (sktm.status == 2) ? 'Surat Belum diambil' : (sktm.status == 3) ? 'Surat diambil' : 'Belum Diproses'
                 return {
                     no: no,
                     id: sktm.id,
                     nama: sktm.nama,
-                    status: status,
                     nik: sktm.nik,
                     tanggal: tgl
                 };
@@ -181,5 +149,6 @@ export default {
     mounted() {
         this.getSKTMData()
     }
+
 }
 </script>

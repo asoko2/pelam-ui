@@ -10,19 +10,29 @@
                     <v-divider></v-divider>
                     <v-card-text>
                         <v-col cols="12">
-                            <div v-if="$fetchState.pending">
+                            <!-- <div v-if="$fetchState.pending">
                                 <v-skeleton-loader type="table" loading></v-skeleton-loader>
-                            </div>
-                            <div v-else>
+                            </div> -->
+                            <!-- <div v-else> -->
+                            <div>
                                 <v-simple-table>
                                     <template v-slot:default>
                                         <tbody>
                                             <tr v-for="(item, index) in title" :key="item.field">
                                                 <td class="text-h6">{{ item.name }} </td>
                                                 <td class="text-h6">:</td>
-                                                <td v-if="index == title.length - 1" class="text-h6"><a
-                                                        :href="sktms['kk']" target="_blank">Lihat KK</a></td>
-                                                <td v-else class="text-h6">{{ sktms[item.field] }}</td>
+                                                <td v-if="index == title.length - 1" class="text-h6"><a :href="kk_link"
+                                                        target="_blank">Lihat KK</a></td>
+                                                <td v-else-if="item.field === 'tanggal_lahir'" class="text-h6">{{
+                                                        tanggal_lahir
+                                                }}</td>
+                                                <td v-else-if="item.field === 'keterangan'">
+                                                    <ol>
+                                                        <li v-for="(ket, index) in keterangan" :key="index"
+                                                            class="text-h6">{{ ket.keterangan }}</li>
+                                                    </ol>
+                                                </td>
+                                                <td v-else class="text-h6">{{ sktm[0][item.field] }}</td>
                                             </tr>
                                         </tbody>
                                     </template>
@@ -41,8 +51,9 @@ export default {
     layout: 'admin',
     data() {
         return {
-            sktms: {
-            },
+            html: '<ol><li>Keterangan 1</li><li>Keterangan 2</li></ol>',
+            // sktms: {
+            // },
             title: [
                 { field: 'nik', name: 'NIK', },
                 { field: 'nama', name: 'Nama' },
@@ -58,23 +69,12 @@ export default {
             ]
         }
     },
-    async fetch() {
-        await this.$axios.$get(`http://localhost:3333/sktm/${this.$route.params.id}`)
-            .then(res => {
-                this.sktms = {
-                    nik: res.sktm[0].nik,
-                    nama: res.sktm[0].nama,
-                    jenis_kelamin: res.sktm[0].jenis_kelamin,
-                    tanggal_lahir: DateTime.fromISO(res.sktm[0].tanggal_lahir).toFormat('yyyy-LL-dd'),
-                    tempat_lahir: res.sktm[0].tempat_lahir,
-                    agama: res.sktm[0].agama,
-                    kewarganegaraan: res.sktm[0].kewarganegaraan,
-                    alamat: res.sktm[0].alamat,
-                    keterangan: res.sktm[0].keterangan,
-                    keperluan: res.sktm[0].keperluan,
-                    kk: res.kk_link
-                }
-            })
+    async asyncData({ $axios, params }) {
+        const sktms = await $axios.$get(`http://localhost:3333/sktm/${params.id}`).then(res => {
+            console.log(res)
+            return res
+        })
+        return sktms
     },
 }
 </script>

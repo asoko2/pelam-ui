@@ -1,7 +1,7 @@
 <template>
     <v-col cols="12">
         <v-btn color="secondary" to="/admin/permohonan-surat/domisili/tambah">
-            <v-icon>mdi-plus-thick</v-icon>TAMBAH DOMISILI
+            <v-icon>mdi-plus-thick</v-icon>TAMBAH Domisili
         </v-btn>
         <v-card>
             <v-toolbar flat>
@@ -16,7 +16,7 @@
                     hide-details>
                 </v-text-field>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" to="/admin/permohonan-surat">Kembali</v-btn>
+                <v-btn color="primary" to="/admin/permohonan-surat/">Kembali</v-btn>
             </v-toolbar>
             <v-divider></v-divider>
             <v-card-text>
@@ -29,6 +29,10 @@
                                 style="text-decoration: none;">
                                 Selengkapnya</router-link>
                             |
+                            <!-- <router-link :to="'/admin/permohonan-surat/domisili/' + item.id + '/edit'" class="primary--text"
+                                style="text-decoration: none;">
+                                Edit</router-link>
+                            | -->
                             <a href="javascript:void(0)" class="primary--text" @click="hapus(item)"
                                 style="text-decoration: none;">Hapus</a>
                         </template>

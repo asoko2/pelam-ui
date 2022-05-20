@@ -79,18 +79,28 @@
                             </v-text-field>
                         </v-col>
                     </v-row>
-                    <v-row class="d-flex align-center" no-gutters dense>
-                        <v-col cols="2">Keterangan</v-col>
+                    <v-row class="d-flex align-start mb-4" no-gutters dense>
+                        <v-col cols="2" class="d-flex justify-between">
+                            Keterangan
+                            <v-spacer></v-spacer>
+                            <v-btn color="secondary" @click="plusKeterangan">
+                                <v-icon>mdi-plus-thick</v-icon>
+                            </v-btn>
+                            <v-spacer></v-spacer>
+                        </v-col>
                         <v-col cols="1">:</v-col>
                         <v-col cols="9">
-                            <!-- <v-text-field v-model="values.keterangan" :error-messages="errors.keterangan"
-                                @keypress="validate('keterangan')" @blur="validate('keterangan')" label="Keterangan"
-                                solo>
-                            </v-text-field> -->
-                            <v-textarea v-model="values.keterangan" :error-messages="errors.keterangan"
-                                @keypress="validate('keterangan')" @blur="validate('keterangan')" solo name="input-7-4"
-                                label="Keterangan">
-                            </v-textarea>
+                            <div v-for="(ket, index) in keterangan" :key="index" class="d-flex justify-between mb-0">
+                                <v-text-field v-model="ket.value" :name="`keterangan[${index}]`"
+                                    @keypress="checkKeterangan" :label="`Keterangan ` + (index + 1)" class="mr-4" solo
+                                    dense></v-text-field>
+                                <v-btn color="error" @click="removeKeterangan(index)">
+                                    <v-icon>mdi-minus-thick</v-icon>
+                                </v-btn>
+                            </div>
+                            <span v-if="this.errors.keterangan !== ''" class="red--text text-caption ml-2">{{
+                                    this.errors.keterangan
+                            }}</span>
                         </v-col>
                     </v-row>
                     <v-row class="d-flex align-center" no-gutters dense>
@@ -119,10 +129,11 @@
 </template>
 
 <script>
+import { forEach } from 'lodash'
 import { object, string } from 'yup'
 
 const domisiliSchema = object({
-    keterangan: string().required('Keterangan harus diisi'),
+    // keterangan: string().required('Keterangan harus diisi'),
     keperluan: string().required('Keperluan harus diisi'),
 })
 export default {
@@ -133,8 +144,8 @@ export default {
             pemohons: [],
             pemohon: {},
             select: '',
+            keterangan: [],
             values: {
-                keterangan: '',
                 keperluan: '',
             },
             errors: {
@@ -159,6 +170,15 @@ export default {
                     this.formVisible = true
                 })
         },
+        plusKeterangan() {
+            this.keterangan.push({ value: '' })
+        },
+        removeKeterangan(index) {
+            this.keterangan.splice(index, 1)
+        },
+        checkKeterangan() {
+            console.log(this.keterangan)
+        },
         validate(field) {
             domisiliSchema
                 .validateAt(field, this.values)
@@ -170,52 +190,75 @@ export default {
                 })
         },
         async submit() {
-            domisiliSchema
-                .validate(this.values, { abortEarly: false })
-                .then(() => {
-                    this.errors = {};
-
-                    const fd = new FormData()
-                    fd.append('pemohonNik', this.select)
-                    fd.append('keterangan', this.values.keterangan)
-                    fd.append('keperluan', this.values.keperluan)
-                    this.$axios.$post('http://localhost:3333/domisili ', fd)
-                        .then(() => {
-                            const Toast = this.$swal.mixin({
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                showCloseButton: true,
-                                background: '#7C9885',
-                                color: 'white',
-                                timer: 3000,
-                                timerProgressBar: true,
-                                didOpen: (toast) => {
-                                    toast.addEventListener('mouseenter', this.$swal.stopTimer)
-                                    toast.addEventListener('mouseleave', this.$swal.resumeTimer)
-                                }
-                            })
-
-                            Toast.fire({
-                                icon: 'success',
-                                title: 'Sukses tambah data Domisili'
-                            })
-                            this.$router.push('/admin/permohonan-surat/domisili')
-                        })
-                        .catch(({ response }) => {
-                            this.errors = {};
-                            response.data.errors.map(e => {
-                                this.$toast.error(e.message, {
-
-                                });
-                            })
-                        })
-                })
-                .catch(err => {
-                    err.inner.forEach(error => {
-                        this.errors[error.path] = error.message;
-                    });
+            if (this.keterangan.length > 0) {
+                this.keterangan.forEach(element => {
+                    if (element.value === '') {
+                        this.errors['keterangan'] = 'Semua kolom keterangan harus diisi'
+                        console.log('keterangan error')
+                        return
+                    } else {
+                        console.log('keterangan tidak error')
+                        this.errors['keterangan'] = ''
+                    }
                 });
+                domisiliSchema
+                    .validate(this.values, { abortEarly: false })
+                    .then(() => {
+                        this.errors = {};
+
+                        console.log('create FormData')
+                        const fd = new FormData()
+                        console.log(this.keterangan)
+                        console.log('Iterate keterangan')
+                        for (let ketKey in this.keterangan) {
+                            fd.append('keterangan[]', this.keterangan[ketKey].value)
+                        }
+                        fd.append('pemohonNik', this.select)
+
+                        // fd.append('keterangan', this.keterangan)
+                        fd.append('keperluan', this.values.keperluan)
+                        console.log('post submit data')
+                        this.$axios.$post('http://localhost:3333/domisili ', fd)
+                            .then(() => {
+                                const Toast = this.$swal.mixin({
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    showCloseButton: true,
+                                    background: '#7C9885',
+                                    color: 'white',
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    didOpen: (toast) => {
+                                        toast.addEventListener('mouseenter', this.$swal.stopTimer)
+                                        toast.addEventListener('mouseleave', this.$swal.resumeTimer)
+                                    }
+                                })
+
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Sukses tambah data Domisili'
+                                })
+                                this.$router.push('/admin/permohonan-surat/domisili')
+                            })
+                            .catch(({ domisili }) => {
+                                this.errors = {};
+                                response.data.errors.map(e => {
+                                    this.$toast.error(e.message, {
+
+                                    });
+                                })
+                            })
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        err.inner.forEach(error => {
+                            this.errors[error.path] = error.message;
+                        });
+                    });
+            } else {
+                alert('Harus mengisi setidaknya 1 keterangan')
+            }
         }
     }
 }

@@ -186,7 +186,7 @@ export default {
     },
     async fetch() {
         await this.$axios.$get(`http://localhost:3333/pemohon/${this.$route.params.nik}`)
-            .then(res => res.json()).then((res) => {
+            .then(res => {
                 this.values = {
                     nik: res.pemohon.nik,
                     nama: res.pemohon.nama,
@@ -224,7 +224,7 @@ export default {
                     console.log(fd)
                     this.$axios.$put(`http://localhost:3333/pemohon/${this.$route.params.nik}`, fd)
                         .then(() => {
-                            const Toast = Swal.mixin({
+                            const Toast = this.$swal.mixin({
                                 toast: true,
                                 position: 'top-end',
                                 showConfirmButton: false,
@@ -238,6 +238,7 @@ export default {
                                     toast.addEventListener('mouseleave', this.$swal.resumeTimer)
                                 }
                             })
+
 
                             Toast.fire({
                                 icon: 'success',

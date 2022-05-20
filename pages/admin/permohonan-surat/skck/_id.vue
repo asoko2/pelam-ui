@@ -2,8 +2,6 @@
     <v-col cols="9" class="mx-auto">
         <v-row class="d-flex justify-start pa-3">
             <v-btn :to="'/admin/permohonan-surat/skck'" color="primary">KEMBALI</v-btn>
-            <div v-html="skck[0].keterangan"></div>
-            <div v-for="ket in keterangan" :key="ket.id">{{ ket }}</div>
         </v-row>
         <v-row>
             <v-col cols="12">
@@ -25,6 +23,9 @@
                                                 <td class="text-h6">:</td>
                                                 <td v-if="index == title.length - 1" class="text-h6"><a :href="kk_link"
                                                         target="_blank">Lihat KK</a></td>
+                                                <td v-else-if="item.field === 'tanggal_lahir'" class="text-h6">{{
+                                                        tanggal_lahir
+                                                }}</td>
                                                 <td v-else-if="item.field === 'keterangan'">
                                                     <ol>
                                                         <li v-for="(ket, index) in keterangan" :key="index"
