@@ -67,7 +67,6 @@ export default {
   },
   methods: {
     async submit() {
-      console.log('start login')
       const val = await this.$refs.observer.validate()
       if (val) {
         this.loading = true

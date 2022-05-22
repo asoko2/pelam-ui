@@ -23,6 +23,16 @@
                                     </v-col>
                                 </v-row>
                                 <v-row class="d-flex align-center" no-gutters dense>
+                                    <v-col cols="2">Username</v-col>
+                                    <v-col cols="1">:</v-col>
+                                    <v-col cols="9">
+                                        <v-text-field v-model="values.username" :error-messages="errors.username"
+                                            @keypress="validate('username')" @blur="validate('username')"
+                                            label="Username" solo dense>
+                                        </v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row class="d-flex align-center" no-gutters dense>
                                     <v-col cols="2">Nama</v-col>
                                     <v-col cols="1">:</v-col>
                                     <v-col cols="9">
@@ -156,6 +166,7 @@ import { object, string, date, mixed } from 'yup'
 
 const loginSchema = object({
     nik: string().min(16, 'NIK Minimal 16 Karakter').required('NIK Harus Diisi'),
+    username: string().required('Username Harus Diisi'),
     nama: string().required('Nama harus diisi'),
     jenis_kelamin: string().required('Jenis Kelamin harus dipilih'),
     tempat_lahir: string().required('Tempat lahir harus diisi'),
@@ -180,6 +191,7 @@ export default {
         return {
             values: {
                 nik: '',
+                username: '',
                 nama: '',
                 jenis_kelamin: '',
                 tempat_lahir: '',
@@ -193,6 +205,7 @@ export default {
             },
             errors: {
                 nik: '',
+                username: '',
                 nama: '',
                 jenis_kelamin: '',
                 tempat_lahir: '',
@@ -215,6 +228,7 @@ export default {
                 .then(() => {
                     const fd = new FormData()
                     fd.append('nik', this.values.nik)
+                    fd.append('username', this.values.username)
                     fd.append('nama', this.values.nama)
                     fd.append('jenis_kelamin', this.values.jenis_kelamin)
                     fd.append('tempat_lahir', this.values.tempat_lahir)

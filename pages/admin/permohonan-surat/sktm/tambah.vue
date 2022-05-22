@@ -182,9 +182,6 @@ export default {
         removeKeterangan(index) {
             this.keterangan.splice(index, 1)
         },
-        checkKeterangan() {
-            console.log(this.keterangan)
-        },
         validate(field) {
             sktmSchema
                 .validateAt(field, this.values)
@@ -200,10 +197,8 @@ export default {
                 this.keterangan.forEach(element => {
                     if (element.value === '') {
                         this.errors['keterangan'] = 'Semua kolom keterangan harus diisi'
-                        console.log('keterangan error')
                         return
                     } else {
-                        console.log('keterangan tidak error')
                         this.errors['keterangan'] = ''
                     }
                 });
@@ -212,10 +207,7 @@ export default {
                     .then(() => {
                         this.errors = {};
 
-                        console.log('create FormData')
                         const fd = new FormData()
-                        console.log(this.keterangan)
-                        console.log('Iterate keterangan')
                         for (let ketKey in this.keterangan) {
                             fd.append('keterangan[]', this.keterangan[ketKey].value)
                         }
@@ -223,7 +215,6 @@ export default {
 
                         // fd.append('keterangan', this.keterangan)
                         fd.append('keperluan', this.values.keperluan)
-                        console.log('post submit data')
                         this.$axios.$post('http://localhost:3333/sktm ', fd)
                             .then(() => {
                                 const Toast = this.$swal.mixin({
@@ -257,7 +248,6 @@ export default {
                             })
                     })
                     .catch(err => {
-                        console.log(err)
                         err.inner.forEach(error => {
                             this.errors[error.path] = error.message;
                         });

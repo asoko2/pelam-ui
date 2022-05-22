@@ -214,7 +214,6 @@ export default {
                         })
                         .catch(({ response }) => {
                             this.errors = {};
-                            console.log(response)
                             response.data.errors.map(e => {
                                 this.$toast.error(e.message, {
 

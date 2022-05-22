@@ -2,12 +2,10 @@
     <v-card>
         <v-toolbar flat>
             <v-toolbar-title class="text-h5">
-                Data Permohonan SKTM
+                Data Permohonan Kehilangan KK
             </v-toolbar-title>
             <v-spacer></v-spacer>
-
             <v-spacer></v-spacer>
-
             <v-text-field solo append-icon="mdi-magnify" v-model="search" label="Cari kata kunci" single-line
                 hide-details>
             </v-text-field>
@@ -17,8 +15,8 @@
         <v-divider></v-divider>
         <v-card-text>
             <v-col cols="12">
-                <v-data-table :headers="headers" :items="sktms" disable-pagination :options.sync="options"
-                    :server-items-length="totalSKTMs" :loading="loading" class="elevation-1 mb-2"
+                <v-data-table :headers="headers" :items="kks" disable-pagination :options.sync="options"
+                    :server-items-length="totalKehilangans" :loading="loading" class="elevation-1 mb-2"
                     :hide-default-footer="true">
                     <template v-slot:[`item.actions`]="{ item }">
                         <v-row>
@@ -30,10 +28,7 @@
                                 <a href="javascript:void(0)" class="primary--text" @click="ambil(item)"
                                     style="text-decoration: none;">Ambil Surat</a>
                             </div>
-                            |&nbsp;
-                            <!-- <a :href="'/admin/permohonan-surat/sktm/print/' + item.id" target="_blank" class="primary--text"
-                            style="text-decoration: none;">Cetak Surat <v-icon color="primary">
-                                mdi-printer</v-icon></a> -->
+                            &nbsp;|&nbsp;
                             <a href="javascript:void(0)" @click="cetak(item.id)" class="primary--text"
                                 style="text-decoration: none;">Cetak Surat
                                 <v-icon color="primary">
@@ -68,11 +63,11 @@ import { DateTime } from 'luxon'
 import { jsPDF } from 'jspdf'
 
 export default {
-    name: 'SktmTable',
+    name: 'KehilanganKKTable',
     data() {
         return {
-            totalSKTMs: 0,
-            sktms: [],
+            totalKehilangans: 0,
+            kks: [],
             loading: true,
             options: {},
             search: '',
@@ -99,62 +94,62 @@ export default {
         options: {
             handler() {
                 // this.getDataFromApi()
-                this.getSKTMData()
+                this.getKehilanganData()
             },
             deep: true,
         },
         search(value) {
             this.search = value
             this.page = 1
-            this.getSKTMData()
+            this.getKehilanganData()
         }
     },
     methods: {
-        async getSKTMData() {
+        async getKehilanganData() {
             this.loading = true
-            await this.$axios.$get('http://localhost:3333/sktm', {
+            await this.$axios.$get('http://localhost:3333/kehilangan-kk', {
                 params: {
                     limit: this.pageSize,
                     page: this.page - 1,
                     search: this.search
                 }
             }).then(res => {
-                this.getDisplaySKTM(res)
-                this.totalSKTMs = res.meta.total
+                this.getDisplayKehilangan(res)
+                this.totalKehilangans = res.meta.total
                 this.loading = false
                 this.totalPages = res.meta.last_page
             })
         },
-        getDisplaySKTM(data) {
-            this.sktms = data.data.map((sktm, i) => {
+        getDisplayKehilangan(data) {
+            this.kks = data.data.map((kk, i) => {
                 let no = (data.meta.current_page - 1) * data.meta.per_page + 1 + i
-                const tgl = DateTime.fromISO(sktm.created_at).toFormat('yyyy-LL-dd')
-                const status = (sktm.status == 1) ? 'Disetujui' : (sktm.status == 2) ? 'Surat Sudah diambil' : 'Belum Diproses'
+                const tgl = DateTime.fromISO(kk.created_at).toFormat('yyyy-LL-dd')
+                const status = (kk.status == 1) ? 'Disetujui' : (kk.status == 2) ? 'Surat Sudah diambil' : 'Belum Diproses'
                 return {
                     no: no,
-                    id: sktm.id,
-                    nama: sktm.nama,
-                    statusCode: sktm.status,
+                    id: kk.id,
+                    nama: kk.nama,
+                    statusCode: kk.status,
                     status: status,
-                    nik: sktm.nik,
+                    nik: kk.nik,
                     tanggal: tgl
                 };
             })
         },
         handlePageChange(value) {
             this.page = value;
-            this.getSKTMData();
+            this.getKehilanganData();
         },
         handlePageSizeChange(size) {
             this.pageSize = size;
             this.page = 1;
-            this.getSKTMData();
+            this.getKehilanganData();
         },
         setuju(val) {
-            const sktm = val
+            const kk = val
             this.$swal.fire({
                 title: 'Peringatan?',
-                text: "Apakah anda yakin menyetujui permohonan SKTM " + sktm.nama,
+                text: "Apakah anda yakin menyetujui permohonan Kehilangan " + kk.nama,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#459EED',
@@ -164,12 +159,12 @@ export default {
                 preConfirm: (hapus) => {
                     const fd = new FormData()
                     fd.append('status', '1')
-                    return this.$axios.$put(`http://localhost:3333/sktm/status/${sktm.id}`, fd)
+                    return this.$axios.$put(`http://localhost:3333/kehilangan-kk/status/${kk.id}`, fd)
                         .then(res => {
                             console.log(res)
                         })
                         .catch(err => {
-                            this.$swal.fire('Gagal!', 'Gagal hapus data' + sktm.nama, 'error')
+                            this.$swal.fire('Gagal!', 'Gagal hapus data' + kk.nama, 'error')
                             this.$swal.hideLoading()
                         })
                 },
@@ -194,15 +189,15 @@ export default {
                         icon: 'success',
                         title: 'Sukses menyetujui permohonan'
                     })
-                    this.getSKTMData()
+                    this.getKehilanganData()
                 }
             })
         },
         ambil(val) {
-            const sktm = val
+            const kk = val
             this.$swal.fire({
                 title: 'Peringatan?',
-                text: "Apakah anda yakin mengubah status permohonan SKTM " + sktm.nama + "menjadi sudah diambil?",
+                text: "Apakah anda yakin mengubah status permohonan Kehilangan " + kk.nama + "menjadi sudah diambil?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#459EED',
@@ -212,12 +207,12 @@ export default {
                 preConfirm: (hapus) => {
                     const fd = new FormData()
                     fd.append('status', '2')
-                    return this.$axios.$put(`http://localhost:3333/sktm/status/${sktm.id}`, fd)
+                    return this.$axios.$put(`http://localhost:3333/kehilangan-kk/status/${kk.id}`, fd)
                         .then(res => {
                             console.log(res)
                         })
                         .catch(err => {
-                            this.$swal.fire('Gagal!', 'Gagal hapus data' + sktm.nama, 'error')
+                            this.$swal.fire('Gagal!', 'Gagal hapus data' + kk.nama, 'error')
                             this.$swal.hideLoading()
                         })
                 },
@@ -242,12 +237,12 @@ export default {
                         icon: 'success',
                         title: 'Sukses menyetujui permohonan'
                     })
-                    this.getSKTMData()
+                    this.getKehilanganData()
                 }
             })
         },
         async cetak(id) {
-            const data = await this.$axios.$get(`http://localhost:3333/sktm/${id}`)
+            const data = await this.$axios.$get(`http://localhost:3333/kehilangan-kk/${id}`)
             const doc = new jsPDF('p', 'mm', [330, 210])
             const tanggal = DateTime.now().toFormat('yyyy-LL-dd')
             doc.addImage("/logo.png", 'PNG', 10, 10, 35, 40)
@@ -262,9 +257,9 @@ export default {
             doc.line(10, 53, 200, 53)
             doc.setFont('times', '', 700)
             doc.setFontSize(13)
-            doc.text('SURAT KETERANGAN TIDAK MAMPU', 69, 62)
-            doc.line(69, 62.5, 147, 62.5)
-            doc.text(`Nomor : 470/${data.sktm[0].id}/413.309.06/${DateTime.now().year}`, 80, 67)
+            doc.text('SURAT KETERANGAN', 85, 62)
+            doc.line(85, 62.5, 134, 62.5)
+            doc.text(`Nomor : 470/${data.kehilangan_kk[0].id}/413.313.06/${DateTime.now().year}`, 77, 67)
             doc.setFont('times', '', 400)
             doc.text('Yang Bertanda tangan di bawah ini :', 15, 78)
             doc.text('Nama', 20, 85)
@@ -276,93 +271,52 @@ export default {
             doc.text('Jabatan', 20, 97)
             doc.text(':', 60, 97)
             doc.text('Kepala Desa Karangtinggil, Kecamatan Pucuk, Kabupaten Lamongan', 62, 97)
-            doc.text('Dengan ini menyatakan bahwa Surat Keterangan Miskin (SKM) atau Surat Keterangan Tidak', 20, 105)
-            doc.text('Mampu (SKTM) yang saya buat untuk : ', 15, 111)
-            doc.text('NIK', 20, 119)
+            doc.text('Menerangkan dengan sebenarnya, bahwa : ', 20, 105)
+            doc.text('Nama', 20, 112)
+            doc.text(':', 60, 112)
+            doc.text(data.kehilangan_kk[0].nama, 62, 112)
+            doc.text('Tempat Lahir', 20, 119)
             doc.text(':', 60, 119)
-            doc.text(data.sktm[0].nik, 62, 119)
-            doc.text('Nama', 20, 126)
+            doc.text(data.kehilangan_kk[0].tempat_lahir, 62, 119)
+            doc.text('Tanggal Lahir', 20, 126)
             doc.text(':', 60, 126)
-            doc.text(data.sktm[0].nama, 62, 126)
-            doc.text('Tempat Lahir', 20, 133)
+            doc.text(DateTime.fromISO(data.kehilangan_kk[0].tanggal_lahir).toFormat('dd LLLL yyyy'), 62, 126)
+            doc.text('NIK', 20, 133)
             doc.text(':', 60, 133)
-            doc.text(data.sktm[0].tempat_lahir, 62, 133)
-            doc.text('Tanggal Lahir', 20, 140)
+            doc.text(data.kehilangan_kk[0].nik, 62, 133)
+            doc.text('Jenis Kelamin', 20, 140)
             doc.text(':', 60, 140)
-            doc.text(DateTime.fromISO(data.sktm[0].tanggal_lahir).toFormat('dd LLLL yyyy'), 62, 140)
-            doc.text('Jenis Kelamin', 20, 147)
+            doc.text(data.kehilangan_kk[0].jenis_kelamin, 62, 140)
+            doc.text('Kewarganegaraan', 20, 147)
             doc.text(':', 60, 147)
-            doc.text(data.sktm[0].jenis_kelamin, 62, 147)
-            doc.text('Kewarganegaraan', 20, 154)
-            doc.text(':', 60, 154)
-            doc.text(data.sktm[0].kewarganegaraan, 62, 154)
-            doc.text('Agama', 20, 161)
-            doc.text(':', 60, 161)
-            doc.text(data.sktm[0].agama, 62, 161)
-            doc.text('Pekerjaan', 20, 168)
-            doc.text(':', 60, 168)
-            doc.text(data.sktm[0].pekerjaan, 62, 168)
-            doc.text('Alamat', 20, 175)
-            doc.text(':', 60, 175)
-            doc.text(data.sktm[0].alamat, 62, 175)
-            doc.text('Keterangan', 20, 182)
-            doc.text(':', 60, 182)
-            let lastY = 182
-            data.keterangan.forEach((ket, index) => {
-                lastY = (index > 0) ? lastY + 8 : lastY
-                const kets = ket.keterangan.split(' ')
-                let ketSplit = 0
-                let keteres = []
-                if (kets.length > 1) {
-                    const ketLt = kets.join(' ').length
-                    ketSplit = Math.ceil(ketLt / 70)
-                    for (let i = 0; i < ketSplit; i++) {
-                        let ketrs = []
-                        for (let j = 0; j < kets.length; j++) {
-                            ketrs.push(kets[j])
-                            if (ketrs.join(' ').length > 70) {
-                                const newK = kets.splice(0, j)
-                                keteres.push(newK)
-                            } else {
-                                if (j == kets.length - 1) keteres.push(ketrs)
-                            }
-                        }
-                    }
-                    keteres.forEach((e, i) => {
-                        lastY = (i > 0) ? lastY + 8 : lastY
-                        if (i == 0) doc.text(`${index + 1}.`, 62, lastY)
-                        doc.text(e.join(' '), 67, lastY)
-                    })
-                } else {
-                    doc.text(`${index + 1}.`, 62, lastY)
-                    doc.text(ket.keterangan, 67, lastY)
-                }
-            })
-            lastY = lastY + 7
-            doc.text('Keperluan', 20, lastY)
-            doc.text(':', 60, lastY)
-            doc.text(data.sktm[0].keperluan, 62, lastY)
-            lastY = lastY + 7
-            doc.text('Demikian Surat Keterangan ini kami buat dengan sebenarnya dan untuk dipergunakan', 20, lastY)
-            lastY = lastY + 7
-            doc.text('sebagaimana mestinya.', 15, lastY)
-            lastY = lastY + 10
-            doc.text(`Karangtinggil, ${tanggal}`, 135, lastY)
-            lastY = lastY + 7
-            doc.text('Pemohon', 25, lastY)
-            doc.text('Kepala Desa Karangtinggil', 135, lastY)
-            lastY = lastY + 30
-            doc.text(data.sktm[0].nama, 25, lastY)
-            doc.text('H. GATOT SUKOCO', 135, lastY)
-            const filename = `${tanggal} - SKTM - ${data.sktm[0].nama}`
+            doc.text(data.kehilangan_kk[0].kewarganegaraan, 62, 147)
+            doc.text('Agama', 20, 153)
+            doc.text(':', 60, 153)
+            doc.text(data.kehilangan_kk[0].agama, 62, 153)
+            doc.text('Pekerjaan', 20, 160)
+            doc.text(':', 60, 160)
+            doc.text(data.kehilangan_kk[0].pekerjaan, 62, 160)
+            doc.text('Alamat', 20, 167)
+            doc.text(':', 60, 167)
+            doc.text(data.kehilangan_kk[0].alamat, 62, 167)
+            doc.text('Keterangan', 20, 173)
+            doc.text(':', 60, 173)
+            doc.text(data.kehilangan_kk[0].keterangan, 62, 173)
+            doc.text('Demikian Surat Keterangan ini kami buat dengan sebenarnya dan untuk dipergunakan', 20, 180)
+            doc.text('sebagaimana mestinya.', 15, 187)
+            doc.text(`Karangtinggil, ${tanggal}`, 135, 193)
+            doc.text('Pemohon', 25, 200)
+            doc.text('Kepala Desa Karangtinggil', 135, 200)
+            doc.text(data.kehilangan_kk[0].nama, 25, 230)
+            doc.text('H. GATOT SUKOCO', 135, 230)
+            const filename = `${tanggal} - Kehilangan KK - ${data.kehilangan_kk[0].nama}`
             doc.setDocumentProperties({ title: filename, subject: filename })
             window.open(doc.output('bloburl'), '_blank')
-            // doc.save()
         },
 
     },
     mounted() {
-        this.getSKTMData()
+        this.getKehilanganData()
     }
 }
 </script>

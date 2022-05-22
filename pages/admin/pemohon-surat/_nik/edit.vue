@@ -203,12 +203,9 @@ export default {
     },
     methods: {
         async submit() {
-            console.log('start update')
             loginSchema
                 .validate(this.values, { abortEarly: false })
                 .then(() => {
-                    console.log('validate true')
-
                     const fd = new FormData()
                     fd.append('nik', this.values.nik)
                     fd.append('nama', this.values.nama)
@@ -221,7 +218,6 @@ export default {
                     fd.append('telpon', this.values.telpon)
                     fd.append('pekerjaan', this.values.pekerjaan)
                     fd.append('kk', this.values.kk)
-                    console.log(fd)
                     this.$axios.$put(`http://localhost:3333/pemohon/${this.$route.params.nik}`, fd)
                         .then(() => {
                             const Toast = this.$swal.mixin({
@@ -256,7 +252,6 @@ export default {
                         })
                 })
                 .catch(err => {
-                    console.log('validate false')
                     err.inner.forEach(error => {
                         this.errors[error.path] = error.message;
                     });

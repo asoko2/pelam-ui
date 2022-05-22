@@ -118,7 +118,6 @@ export default {
             })
         },
         getDisplayPemohon(data) {
-            console.log(data)
             this.pemohons = data.data.map((pemohon, i) => {
                 let no = (data.meta.current_page - 1) * data.meta.per_page + 1 + i
                 return {

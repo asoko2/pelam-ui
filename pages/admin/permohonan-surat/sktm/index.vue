@@ -145,7 +145,6 @@ export default {
         },
         hapus(val) {
             const sktm = val
-            console.log(sktm)
             this.$swal.fire({
                 title: 'Peringatan?',
                 text: "Apakah anda yakin untuk hapus data " + sktm.nama,

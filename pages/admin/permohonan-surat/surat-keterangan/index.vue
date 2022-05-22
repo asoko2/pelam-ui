@@ -142,7 +142,6 @@ export default {
         },
         hapus(val) {
             const surat_keterangan = val
-            console.log(surat_keterangan)
             this.$swal.fire({
                 title: 'Peringatan?',
                 text: "Apakah anda yakin untuk hapus data " + surat_keterangan.nama,

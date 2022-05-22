@@ -10,7 +10,6 @@ export default function ({ $auth }) {
       }
     } else {
       const uri = from.split("/");
-      console.log(uri);
     }
   });
 }

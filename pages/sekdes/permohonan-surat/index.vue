@@ -28,10 +28,9 @@ import DomisiliTable from '~/components/DomisiliTable.vue'
 import SkuTable from '../../../components/SkuTable.vue'
 import KehilanganKKVue from '~/components/KehilanganKK.vue'
 import SuratKeteranganTable from '../../../components/SuratKeteranganTable.vue'
-// import DomisiliTable from '../../../components/DomisiliTable.vue'
 
 export default {
-    layout: 'admin',
+    layout: 'sekdes',
     components: {
         SktmTableVue,
         SkckTableVue,

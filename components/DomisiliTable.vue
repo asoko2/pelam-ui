@@ -2,12 +2,10 @@
     <v-card>
         <v-toolbar flat>
             <v-toolbar-title class="text-h5">
-                Data Permohonan SKTM
+                Data Permohonan Domisili
             </v-toolbar-title>
             <v-spacer></v-spacer>
-
             <v-spacer></v-spacer>
-
             <v-text-field solo append-icon="mdi-magnify" v-model="search" label="Cari kata kunci" single-line
                 hide-details>
             </v-text-field>
@@ -17,8 +15,8 @@
         <v-divider></v-divider>
         <v-card-text>
             <v-col cols="12">
-                <v-data-table :headers="headers" :items="sktms" disable-pagination :options.sync="options"
-                    :server-items-length="totalSKTMs" :loading="loading" class="elevation-1 mb-2"
+                <v-data-table :headers="headers" :items="domisilis" disable-pagination :options.sync="options"
+                    :server-items-length="totalDomisilis" :loading="loading" class="elevation-1 mb-2"
                     :hide-default-footer="true">
                     <template v-slot:[`item.actions`]="{ item }">
                         <v-row>
@@ -31,7 +29,7 @@
                                     style="text-decoration: none;">Ambil Surat</a>
                             </div>
                             |&nbsp;
-                            <!-- <a :href="'/admin/permohonan-surat/sktm/print/' + item.id" target="_blank" class="primary--text"
+                            <!-- <a :href="'/admin/permohonan-surat/domisili/print/' + item.id" target="_blank" class="primary--text"
                             style="text-decoration: none;">Cetak Surat <v-icon color="primary">
                                 mdi-printer</v-icon></a> -->
                             <a href="javascript:void(0)" @click="cetak(item.id)" class="primary--text"
@@ -68,11 +66,11 @@ import { DateTime } from 'luxon'
 import { jsPDF } from 'jspdf'
 
 export default {
-    name: 'SktmTable',
+    name: 'DomisiliTable',
     data() {
         return {
-            totalSKTMs: 0,
-            sktms: [],
+            totalDomisilis: 0,
+            domisilis: [],
             loading: true,
             options: {},
             search: '',
@@ -99,62 +97,62 @@ export default {
         options: {
             handler() {
                 // this.getDataFromApi()
-                this.getSKTMData()
+                this.getDomisiliData()
             },
             deep: true,
         },
         search(value) {
             this.search = value
             this.page = 1
-            this.getSKTMData()
+            this.getDomisiliData()
         }
     },
     methods: {
-        async getSKTMData() {
+        async getDomisiliData() {
             this.loading = true
-            await this.$axios.$get('http://localhost:3333/sktm', {
+            await this.$axios.$get('http://localhost:3333/domisili', {
                 params: {
                     limit: this.pageSize,
                     page: this.page - 1,
                     search: this.search
                 }
             }).then(res => {
-                this.getDisplaySKTM(res)
-                this.totalSKTMs = res.meta.total
+                this.getDisplayDomisili(res)
+                this.totalDomisilis = res.meta.total
                 this.loading = false
                 this.totalPages = res.meta.last_page
             })
         },
-        getDisplaySKTM(data) {
-            this.sktms = data.data.map((sktm, i) => {
+        getDisplayDomisili(data) {
+            this.domisilis = data.data.map((domisili, i) => {
                 let no = (data.meta.current_page - 1) * data.meta.per_page + 1 + i
-                const tgl = DateTime.fromISO(sktm.created_at).toFormat('yyyy-LL-dd')
-                const status = (sktm.status == 1) ? 'Disetujui' : (sktm.status == 2) ? 'Surat Sudah diambil' : 'Belum Diproses'
+                const tgl = DateTime.fromISO(domisili.created_at).toFormat('yyyy-LL-dd')
+                const status = (domisili.status == 1) ? 'Disetujui' : (domisili.status == 2) ? 'Surat Sudah diambil' : 'Belum Diproses'
                 return {
                     no: no,
-                    id: sktm.id,
-                    nama: sktm.nama,
-                    statusCode: sktm.status,
+                    id: domisili.id,
+                    nama: domisili.nama,
+                    statusCode: domisili.status,
                     status: status,
-                    nik: sktm.nik,
+                    nik: domisili.nik,
                     tanggal: tgl
                 };
             })
         },
         handlePageChange(value) {
             this.page = value;
-            this.getSKTMData();
+            this.getDomisiliData();
         },
         handlePageSizeChange(size) {
             this.pageSize = size;
             this.page = 1;
-            this.getSKTMData();
+            this.getDomisiliData();
         },
         setuju(val) {
-            const sktm = val
+            const domisili = val
             this.$swal.fire({
                 title: 'Peringatan?',
-                text: "Apakah anda yakin menyetujui permohonan SKTM " + sktm.nama,
+                text: "Apakah anda yakin menyetujui permohonan Domisili " + domisili.nama,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#459EED',
@@ -164,12 +162,12 @@ export default {
                 preConfirm: (hapus) => {
                     const fd = new FormData()
                     fd.append('status', '1')
-                    return this.$axios.$put(`http://localhost:3333/sktm/status/${sktm.id}`, fd)
+                    return this.$axios.$put(`http://localhost:3333/domisili/status/${domisili.id}`, fd)
                         .then(res => {
                             console.log(res)
                         })
                         .catch(err => {
-                            this.$swal.fire('Gagal!', 'Gagal hapus data' + sktm.nama, 'error')
+                            this.$swal.fire('Gagal!', 'Gagal hapus data' + domisili.nama, 'error')
                             this.$swal.hideLoading()
                         })
                 },
@@ -194,15 +192,15 @@ export default {
                         icon: 'success',
                         title: 'Sukses menyetujui permohonan'
                     })
-                    this.getSKTMData()
+                    this.getDomisiliData()
                 }
             })
         },
         ambil(val) {
-            const sktm = val
+            const domisili = val
             this.$swal.fire({
                 title: 'Peringatan?',
-                text: "Apakah anda yakin mengubah status permohonan SKTM " + sktm.nama + "menjadi sudah diambil?",
+                text: "Apakah anda yakin mengubah status permohonan Domisili " + domisili.nama + "menjadi sudah diambil?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#459EED',
@@ -212,12 +210,12 @@ export default {
                 preConfirm: (hapus) => {
                     const fd = new FormData()
                     fd.append('status', '2')
-                    return this.$axios.$put(`http://localhost:3333/sktm/status/${sktm.id}`, fd)
+                    return this.$axios.$put(`http://localhost:3333/domisili/status/${domisili.id}`, fd)
                         .then(res => {
                             console.log(res)
                         })
                         .catch(err => {
-                            this.$swal.fire('Gagal!', 'Gagal hapus data' + sktm.nama, 'error')
+                            this.$swal.fire('Gagal!', 'Gagal hapus data' + domisili.nama, 'error')
                             this.$swal.hideLoading()
                         })
                 },
@@ -242,12 +240,12 @@ export default {
                         icon: 'success',
                         title: 'Sukses menyetujui permohonan'
                     })
-                    this.getSKTMData()
+                    this.getDomisiliData()
                 }
             })
         },
         async cetak(id) {
-            const data = await this.$axios.$get(`http://localhost:3333/sktm/${id}`)
+            const data = await this.$axios.$get(`http://localhost:3333/domisili/${id}`)
             const doc = new jsPDF('p', 'mm', [330, 210])
             const tanggal = DateTime.now().toFormat('yyyy-LL-dd')
             doc.addImage("/logo.png", 'PNG', 10, 10, 35, 40)
@@ -262,9 +260,9 @@ export default {
             doc.line(10, 53, 200, 53)
             doc.setFont('times', '', 700)
             doc.setFontSize(13)
-            doc.text('SURAT KETERANGAN TIDAK MAMPU', 69, 62)
-            doc.line(69, 62.5, 147, 62.5)
-            doc.text(`Nomor : 470/${data.sktm[0].id}/413.309.06/${DateTime.now().year}`, 80, 67)
+            doc.text('SURAT KETERANGAN DOMISILI', 72, 62)
+            doc.line(72, 62.5, 145, 62.5)
+            doc.text(`Nomor : 470/${data.domisili[0].id}/413.309.06/${DateTime.now().year}`, 80, 67)
             doc.setFont('times', '', 400)
             doc.text('Yang Bertanda tangan di bawah ini :', 15, 78)
             doc.text('Nama', 20, 85)
@@ -276,38 +274,37 @@ export default {
             doc.text('Jabatan', 20, 97)
             doc.text(':', 60, 97)
             doc.text('Kepala Desa Karangtinggil, Kecamatan Pucuk, Kabupaten Lamongan', 62, 97)
-            doc.text('Dengan ini menyatakan bahwa Surat Keterangan Miskin (SKM) atau Surat Keterangan Tidak', 20, 105)
-            doc.text('Mampu (SKTM) yang saya buat untuk : ', 15, 111)
-            doc.text('NIK', 20, 119)
-            doc.text(':', 60, 119)
-            doc.text(data.sktm[0].nik, 62, 119)
-            doc.text('Nama', 20, 126)
-            doc.text(':', 60, 126)
-            doc.text(data.sktm[0].nama, 62, 126)
-            doc.text('Tempat Lahir', 20, 133)
-            doc.text(':', 60, 133)
-            doc.text(data.sktm[0].tempat_lahir, 62, 133)
-            doc.text('Tanggal Lahir', 20, 140)
-            doc.text(':', 60, 140)
-            doc.text(DateTime.fromISO(data.sktm[0].tanggal_lahir).toFormat('dd LLLL yyyy'), 62, 140)
-            doc.text('Jenis Kelamin', 20, 147)
-            doc.text(':', 60, 147)
-            doc.text(data.sktm[0].jenis_kelamin, 62, 147)
-            doc.text('Kewarganegaraan', 20, 154)
-            doc.text(':', 60, 154)
-            doc.text(data.sktm[0].kewarganegaraan, 62, 154)
-            doc.text('Agama', 20, 161)
-            doc.text(':', 60, 161)
-            doc.text(data.sktm[0].agama, 62, 161)
-            doc.text('Pekerjaan', 20, 168)
-            doc.text(':', 60, 168)
-            doc.text(data.sktm[0].pekerjaan, 62, 168)
-            doc.text('Alamat', 20, 175)
-            doc.text(':', 60, 175)
-            doc.text(data.sktm[0].alamat, 62, 175)
-            doc.text('Keterangan', 20, 182)
-            doc.text(':', 60, 182)
-            let lastY = 182
+            doc.text('Menerangkan dengan sebenarnya, bahwa : ', 20, 105)
+            doc.text('NIK', 20, 115)
+            doc.text(':', 60, 115)
+            doc.text(data.domisili[0].nik, 62, 115)
+            doc.text('Nama', 20, 122)
+            doc.text(':', 60, 122)
+            doc.text(data.domisili[0].nama, 62, 122)
+            doc.text('Tempat Lahir', 20, 129)
+            doc.text(':', 60, 129)
+            doc.text(data.domisili[0].tempat_lahir, 62, 129)
+            doc.text('Tanggal Lahir', 20, 136)
+            doc.text(':', 60, 136)
+            doc.text(DateTime.fromISO(data.domisili[0].tanggal_lahir).toFormat('dd LLLL yyyy'), 62, 136)
+            doc.text('Jenis Kelamin', 20, 143)
+            doc.text(':', 60, 143)
+            doc.text(data.domisili[0].jenis_kelamin, 62, 143)
+            doc.text('Kewarganegaraan', 20, 150)
+            doc.text(':', 60, 150)
+            doc.text(data.domisili[0].kewarganegaraan, 62, 150)
+            doc.text('Agama', 20, 157)
+            doc.text(':', 60, 157)
+            doc.text(data.domisili[0].agama, 62, 157)
+            doc.text('Pekerjaan', 20, 163)
+            doc.text(':', 60, 163)
+            doc.text(data.domisili[0].pekerjaan, 62, 163)
+            doc.text('Alamat', 20, 170)
+            doc.text(':', 60, 170)
+            doc.text(data.domisili[0].alamat, 62, 170)
+            doc.text('Keterangan', 20, 177)
+            doc.text(':', 60, 177)
+            let lastY = 177
             data.keterangan.forEach((ket, index) => {
                 lastY = (index > 0) ? lastY + 8 : lastY
                 const kets = ket.keterangan.split(' ')
@@ -341,7 +338,7 @@ export default {
             lastY = lastY + 7
             doc.text('Keperluan', 20, lastY)
             doc.text(':', 60, lastY)
-            doc.text(data.sktm[0].keperluan, 62, lastY)
+            doc.text(data.domisili[0].keperluan, 62, lastY)
             lastY = lastY + 7
             doc.text('Demikian Surat Keterangan ini kami buat dengan sebenarnya dan untuk dipergunakan', 20, lastY)
             lastY = lastY + 7
@@ -351,10 +348,10 @@ export default {
             lastY = lastY + 7
             doc.text('Pemohon', 25, lastY)
             doc.text('Kepala Desa Karangtinggil', 135, lastY)
-            lastY = lastY + 30
-            doc.text(data.sktm[0].nama, 25, lastY)
+            lastY = lastY + 37
+            doc.text(data.domisili[0].nama, 25, lastY)
             doc.text('H. GATOT SUKOCO', 135, lastY)
-            const filename = `${tanggal} - SKTM - ${data.sktm[0].nama}`
+            const filename = `${tanggal} - SKTM - ${data.domisili[0].nama}`
             doc.setDocumentProperties({ title: filename, subject: filename })
             window.open(doc.output('bloburl'), '_blank')
             // doc.save()
@@ -362,7 +359,7 @@ export default {
 
     },
     mounted() {
-        this.getSKTMData()
+        this.getDomisiliData()
     }
 }
 </script>
