@@ -97,8 +97,7 @@
                             <!-- <vue-editor v-model="keterangan" @text-change="validate('keterangan')"
                                 @blur="validate('keterangan')"></vue-editor> -->
                             <div v-for="(ket, index) in keterangan" :key="index" class="d-flex justify-between mb-0">
-                                <v-text-field v-model="ket.value" :name="`keterangan[${index}]`"
-                                    @keypress="checkKeterangan" :label="`Keterangan ` + (index + 1)" class="mr-4" solo
+                                <v-text-field v-model="ket.value" :name="`keterangan[${index}]`" :label="`Keterangan ` + (index + 1)" class="mr-4" solo
                                     dense></v-text-field>
                                 <v-btn color="error" @click="removeKeterangan(index)">
                                     <v-icon>mdi-minus-thick</v-icon>
